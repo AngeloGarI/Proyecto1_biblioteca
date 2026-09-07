@@ -1,0 +1,15 @@
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.GeneratedMSBuildEditorConfig.editorconfig
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.AssemblyInfoInputs.cache
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.AssemblyInfo.cs
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.csproj.CoreCompileInputs.cache
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.sourcelink.json
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\bin\Debug\net10.0\Proyecto1_biblioteca.exe
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\bin\Debug\net10.0\Proyecto1_biblioteca.deps.json
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\bin\Debug\net10.0\Proyecto1_biblioteca.runtimeconfig.json
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\bin\Debug\net10.0\Proyecto1_biblioteca.dll
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\bin\Debug\net10.0\Proyecto1_biblioteca.pdb
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.dll
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\refint\Proyecto1_biblioteca.dll
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.pdb
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\Proyecto1_biblioteca.genruntimeconfig.cache
+A:\Documentos\Proyecto_biblioteca\Proyecto1_biblioteca\obj\Debug\net10.0\ref\Proyecto1_biblioteca.dll

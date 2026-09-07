@@ -1,15 +1,15 @@
-namespace Proyecto1_biblioteca.Models
+namespace BibliotecaEstructuras
 {
-    public class libro
+    public class Libro
     {
         public int Codigo { get; set; }
         public string Titulo { get; set; }
         public string Autor { get; set; }
-        public string Categoria { get; set; } 
+        public string Categoria { get; set; }
         public int CopiasDisponibles { get; set; }
         public int VecesPrestado { get; set; }
 
-        public libro(int codigo, string titulo, string autor, string categoria, int copias, int prestado)
+        public Libro(int codigo, string titulo, string autor, string categoria, int copias, int prestado)
         {
             Codigo = codigo;
             Titulo = titulo;
@@ -18,9 +18,10 @@ namespace Proyecto1_biblioteca.Models
             CopiasDisponibles = copias;
             VecesPrestado = prestado;
         }
+
         public override string ToString()
         {
-            return $"Codigo: {Codigo}, Titulo: {Titulo}, Autor: {Autor}, Categoria: {Categoria}, Copias Disponibles: {CopiasDisponibles}, Veces Prestado: {VecesPrestado}";
+            return $"[{Codigo}] {Titulo} - {Autor} | Cat: {Categoria} | Copias: {CopiasDisponibles} | Prestado: {VecesPrestado} veces";
         }
     }
 }
