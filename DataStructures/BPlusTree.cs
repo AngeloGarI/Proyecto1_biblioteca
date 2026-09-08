@@ -21,7 +21,7 @@ namespace BibliotecaEstructuras
         private Libro BuscarRecursivo(BPlusTreeNode node, int codigo)
         {
             int i = 0;
-            while (i < node.NumKeys && codigo >= node.Keys[i])
+            while (i < node.NumKeys && codigo > node.Keys[i])
                 i++;
 
             if (node.IsLeaf)
@@ -165,7 +165,7 @@ namespace BibliotecaEstructuras
             if (node.IsLeaf) return node;
 
             int i = 0;
-            while (i < node.NumKeys && codigo >= node.Keys[i])
+            while (i < node.NumKeys && codigo > node.Keys[i])
                 i++;
 
             return LocalizarHoja((BPlusTreeNode)node.ChildrenOrData[i], codigo);
