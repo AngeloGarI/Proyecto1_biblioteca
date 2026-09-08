@@ -5,9 +5,10 @@ namespace BibliotecaEstructuras
 {
     class Program
     {
-        static BPlusTree arbolBPlus = new BPlusTree(3);
+        static BPlusTree arbolBPlus = new BPlusTree(4); // Actualizado a orden 4 por defecto
         static MaxHeap maxHeapPrestados = new MaxHeap();
         static MinHeap minHeapCopias = new MinHeap();
+        static string rutaArchivoActual = Path.Combine("Data", "libros.csv");
 
         static void Main(string[] args)
         {
@@ -15,19 +16,19 @@ namespace BibliotecaEstructuras
             do
             {
                 Console.Clear();
-                Console.WriteLine("==================================================");
                 Console.WriteLine("   SISTEMA DE GESTIÓN DE BIBLIOTECA - ESTRUCTURAS ");
-                Console.WriteLine("==================================================");
                 Console.WriteLine("1. Cargar libros desde archivo (.csv)");
                 Console.WriteLine("2. Registrar nuevo libro manualmente");
                 Console.WriteLine("3. Buscar libro por código (Árbol B+)");
-                Console.WriteLine("4. Registrar préstamo de un libro");
-                Console.WriteLine("5. Registrar devolución de un libro");
-                Console.WriteLine("6. Ver catálogo completo ordenado (Árbol B+)");
-                Console.WriteLine("7. Ver libros más prestados (Max Heap)");
-                Console.WriteLine("8. Ver libros con menor stock de copias (Min Heap)");
-                Console.WriteLine("9. Salir");
-                Console.WriteLine("==================================================");
+                Console.WriteLine("4. Eliminar libro (De todas las estructuras)");
+                Console.WriteLine("5. Registrar préstamo de un libro");
+                Console.WriteLine("6. Registrar devolución de un libro");
+                Console.WriteLine("7. Ver catálogo ordenado por CÓDIGO (Árbol B+)");
+                Console.WriteLine("8. Ver catálogo ordenado por TÍTULO (QuickSort)");
+                Console.WriteLine("9. Ver libros más prestados (Max Heap)");
+                Console.WriteLine("10. Ver libros con menor stock de copias (Min Heap)");
+                Console.WriteLine("11. Ver estructuras de Heaps por niveles");
+                Console.WriteLine("12. Guardar cambios y salir");
                 Console.Write("Seleccione una opción: ");
 
                 if (int.TryParse(Console.ReadLine(), out opcion))
@@ -37,12 +38,15 @@ namespace BibliotecaEstructuras
                         case 1: CargarDesdeCSV(); break;
                         case 2: RegistrarManual(); break;
                         case 3: BuscarLibro(); break;
-                        case 4: RegistrarPrestamo(); break;
-                        case 5: RegistrarDevolucion(); break;
-                        case 6: arbolBPlus.ImprimirCatalogoOrdenado(); Pausa(); break;
-                        case 7: MostrarMasPrestados(); break;
-                        case 8: MostrarMenorStock(); break;
-                        case 9: Console.WriteLine("Saliendo del programa..."); break;
+                        case 4: EliminarLibro(); break;
+                        case 5: RegistrarPrestamo(); break;
+                        case 6: RegistrarDevolucion(); break;
+                        case 7: arbolBPlus.ImprimirCatalogoOrdenado(); Pausa(); break;
+                        case 8: arbolBPlus.ImprimirPorTitulo(); Pausa(); break;
+                        case 9: MostrarMasPrestados(); break;
+                        case 10: MostrarMenorStock(); break;
+                        case 11: MostrarEstructuraHeaps(); break;
+                        case 12: GuardarEnCSV(); Console.WriteLine("Saliendo del programa..."); break;
                         default: Console.WriteLine("Opción no válida."); Pausa(); break;
                     }
                 }
@@ -51,7 +55,7 @@ namespace BibliotecaEstructuras
                     Console.WriteLine("Entrada inválida.");
                     Pausa();
                 }
-            } while (opcion != 9);
+            } while (opcion != 12);
         }
 
         static void InsertarEnEstructuras(Libro libro)
@@ -63,8 +67,10 @@ namespace BibliotecaEstructuras
 
         static void CargarDesdeCSV()
         {
-            Console.Write("\nIngrese la ruta del archivo CSV (ej. libros.csv): ");
+            Console.Write("\nIngrese la ruta del archivo CSV (ej. Data/libros.csv): ");
             string ruta = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(ruta)) ruta = Path.Combine("Data", "libros.csv");
 
             if (!File.Exists(ruta))
             {
@@ -73,13 +79,18 @@ namespace BibliotecaEstructuras
                 return;
             }
 
+            rutaArchivoActual = ruta;
+            arbolBPlus = new BPlusTree(4); // Inicializa orden 4 al recargar
+            maxHeapPrestados = new MaxHeap();
+            minHeapCopias = new MinHeap();
+
             try
             {
                 string[] lineas = File.ReadAllLines(ruta);
                 int cargados = 0;
                 for (int i = 0; i < lineas.Length; i++)
                 {
-                    if (i == 0 && lineas[i].ToLower().Contains("codigo")) continue; // Saltar encabezado
+                    if (i == 0 && lineas[i].ToLower().Contains("codigo")) continue;
                     string[] datos = lineas[i].Split(',');
                     if (datos.Length >= 6)
                     {
@@ -104,12 +115,52 @@ namespace BibliotecaEstructuras
             Pausa();
         }
 
+        static void GuardarEnCSV()
+        {
+            try
+            {
+                string directorio = Path.GetDirectoryName(rutaArchivoActual);
+                if (!string.IsNullOrEmpty(directorio) && !Directory.Exists(directorio))
+                {
+                    Directory.CreateDirectory(directorio);
+                }
+
+                using (StreamWriter sw = new StreamWriter(rutaArchivoActual, false))
+                {
+                    sw.WriteLine("Codigo,Titulo,Autor,Categoria,CopiasDisponibles,VecesPrestado");
+
+                    BPlusTreeNode curr = arbolBPlus.Root;
+                    while (curr != null && !curr.IsLeaf) curr = (BPlusTreeNode)curr.ChildrenOrData[0];
+
+                    while (curr != null)
+                    {
+                        for (int i = 0; i < curr.NumKeys; i++)
+                        {
+                            Libro l = (Libro)curr.ChildrenOrData[i];
+                            sw.WriteLine($"{l.Codigo},{l.Titulo},{l.Autor},{l.Categoria},{l.CopiasDisponibles},{l.VecesPrestado}");
+                        }
+                        curr = curr.Next;
+                    }
+                }
+                Console.WriteLine($"\n[Persistencia] Datos guardados exitosamente en '{rutaArchivoActual}'.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nError al guardar en el archivo: {ex.Message}");
+            }
+        }
+
         static void RegistrarManual()
         {
             Console.WriteLine("\n--- REGISTRO MANUAL DE LIBRO ---");
             Console.Write("Código único (entero): ");
-            int cod = int.Parse(Console.ReadLine());
-            
+            if (!int.TryParse(Console.ReadLine(), out int cod))
+            {
+                Console.WriteLine("Código inválido.");
+                Pausa();
+                return;
+            }
+
             if (arbolBPlus.Buscar(cod) != null)
             {
                 Console.WriteLine("Error: Ya existe un libro con ese código.");
@@ -130,6 +181,7 @@ namespace BibliotecaEstructuras
 
             Libro l = new Libro(cod, tit, aut, cat, cop, pres);
             InsertarEnEstructuras(l);
+            GuardarEnCSV();
             Console.WriteLine("\nLibro registrado exitosamente.");
             Pausa();
         }
@@ -153,6 +205,28 @@ namespace BibliotecaEstructuras
             Pausa();
         }
 
+        static void EliminarLibro()
+        {
+            Console.Write("\nIngrese el código del libro a eliminar: ");
+            if (int.TryParse(Console.ReadLine(), out int cod))
+            {
+                bool exitoBPlus = arbolBPlus.Eliminar(cod);
+                bool exitoMax = maxHeapPrestados.Eliminar(cod);
+                bool exitoMin = minHeapCopias.Eliminar(cod);
+
+                if (exitoBPlus)
+                {
+                    GuardarEnCSV();
+                    Console.WriteLine($"\nLibro con código {cod} eliminado de todas las estructuras.");
+                }
+                else
+                {
+                    Console.WriteLine("\nEl libro no fue encontrado.");
+                }
+            }
+            Pausa();
+        }
+
         static void RegistrarPrestamo()
         {
             Console.Write("\nIngrese el código del libro a prestar: ");
@@ -165,6 +239,7 @@ namespace BibliotecaEstructuras
                     {
                         l.CopiasDisponibles--;
                         l.VecesPrestado++;
+                        GuardarEnCSV();
                         Console.WriteLine($"\nPréstamo realizado. Copias restantes: {l.CopiasDisponibles}. Total préstamos: {l.VecesPrestado}");
                     }
                     else
@@ -189,6 +264,7 @@ namespace BibliotecaEstructuras
                 if (l != null)
                 {
                     l.CopiasDisponibles++;
+                    GuardarEnCSV();
                     Console.WriteLine($"\nDevolución realizada. Copias actuales: {l.CopiasDisponibles}");
                 }
                 else
@@ -224,6 +300,13 @@ namespace BibliotecaEstructuras
                 Console.WriteLine($"{top}. {l.Titulo} - {l.CopiasDisponibles} copias disponibles");
                 top++;
             }
+            Pausa();
+        }
+
+        static void MostrarEstructuraHeaps()
+        {
+            maxHeapPrestados.ImprimirHeap();
+            minHeapCopias.ImprimirHeap();
             Pausa();
         }
 

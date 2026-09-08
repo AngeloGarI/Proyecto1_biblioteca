@@ -73,6 +73,70 @@ namespace BibliotecaEstructuras
             }
         }
 
+        public Libro Buscar(int codigo)
+        {
+            for (int i = 0; i < Size; i++)
+            {
+                if (heap[i].Codigo == codigo)
+                    return heap[i];
+            }
+            return null;
+        }
+
+        public bool Eliminar(int codigo)
+        {
+            int index = -1;
+            for (int i = 0; i < Size; i++)
+            {
+                if (heap[i].Codigo == codigo)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index == -1) return false;
+
+            heap[index] = heap[Size - 1];
+            Size--;
+            SiftDown(index);
+            SiftUp(index);
+            return true;
+        }
+
+        public void ImprimirHeap()
+        {
+            if (Size == 0)
+            {
+                Console.WriteLine("El Heap está vacío.");
+                return;
+            }
+
+            Console.WriteLine("\n--- ESTRUCTURA INTERNA DEL MAX HEAP (POR NIVELES) ---");
+            int nivelActual = 0;
+            int nodosEnNivel = 1;
+            int contadorNivel = 0;
+
+            for (int i = 0; i < Size; i++)
+            {
+                if (contadorNivel == 0)
+                {
+                    Console.Write($"\n[Nivel {nivelActual}]: ");
+                }
+
+                Console.Write($"({heap[i].Codigo} - Prestado: {heap[i].VecesPrestado}) ");
+                contadorNivel++;
+
+                if (contadorNivel == nodosEnNivel)
+                {
+                    nivelActual++;
+                    nodosEnNivel *= 2;
+                    contadorNivel = 0;
+                }
+            }
+            Console.WriteLine();
+        }
+
         private void Resize()
         {
             capacity *= 2;

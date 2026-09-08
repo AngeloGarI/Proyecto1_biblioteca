@@ -7,7 +7,7 @@ namespace BibliotecaEstructuras
         private readonly int order;
         public BPlusTreeNode Root { get; private set; }
 
-        public BPlusTree(int order = 3)
+        public BPlusTree(int order = 4)
         {
             this.order = order;
             Root = new BPlusTreeNode(true, order);
@@ -21,7 +21,7 @@ namespace BibliotecaEstructuras
         private Libro BuscarRecursivo(BPlusTreeNode node, int codigo)
         {
             int i = 0;
-            while (i < node.NumKeys && codigo > node.Keys[i])
+            while (i < node.NumKeys && codigo >= node.Keys[i])
                 i++;
 
             if (node.IsLeaf)
@@ -131,6 +131,45 @@ namespace BibliotecaEstructuras
                 parent.NumKeys++;
             }
         }
+        public bool Eliminar(int codigo)
+        {
+            BPlusTreeNode leaf = LocalizarHoja(Root, codigo);
+            if (leaf == null) return false;
+
+            int index = -1;
+            for (int i = 0; i < leaf.NumKeys; i++)
+            {
+                if (leaf.Keys[i] == codigo)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index == -1) return false;
+
+            for (int i = index; i < leaf.NumKeys - 1; i++)
+            {
+                leaf.Keys[i] = leaf.Keys[i + 1];
+                leaf.ChildrenOrData[i] = leaf.ChildrenOrData[i + 1];
+            }
+            leaf.NumKeys--;
+            leaf.ChildrenOrData[leaf.NumKeys] = null;
+
+            return true;
+        }
+
+        private BPlusTreeNode LocalizarHoja(BPlusTreeNode node, int codigo)
+        {
+            if (node == null) return null;
+            if (node.IsLeaf) return node;
+
+            int i = 0;
+            while (i < node.NumKeys && codigo >= node.Keys[i])
+                i++;
+
+            return LocalizarHoja((BPlusTreeNode)node.ChildrenOrData[i], codigo);
+        }
 
         public void ImprimirCatalogoOrdenado()
         {
@@ -156,6 +195,78 @@ namespace BibliotecaEstructuras
                 }
                 curr = curr.Next;
             }
+        }
+
+        // ==========================================
+        // ORDENAMIENTO POR TÍTULO (QUICKSORT PROPIO)
+        // ==========================================
+        public void ImprimirPorTitulo()
+        {
+            int total = 0;
+            BPlusTreeNode curr = Root;
+            while (curr != null && !curr.IsLeaf) curr = (BPlusTreeNode)curr.ChildrenOrData[0];
+            BPlusTreeNode temp = curr;
+            while (temp != null)
+            {
+                total += temp.NumKeys;
+                temp = temp.Next;
+            }
+
+            if (total == 0)
+            {
+                Console.WriteLine("El catálogo está vacío.");
+                return;
+            }
+
+            Libro[] arreglo = new Libro[total];
+            int idx = 0;
+            while (curr != null)
+            {
+                for (int i = 0; i < curr.NumKeys; i++)
+                {
+                    arreglo[idx++] = (Libro)curr.ChildrenOrData[i];
+                }
+                curr = curr.Next;
+            }
+
+            QuickSortPorTitulo(arreglo, 0, total - 1);
+
+            Console.WriteLine("\n--- CATÁLOGO COMPLETO (ORDENADO POR TÍTULO) ---");
+            for (int i = 0; i < total; i++)
+            {
+                Console.WriteLine(arreglo[i]);
+            }
+        }
+
+        private void QuickSortPorTitulo(Libro[] arr, int low, int high)
+        {
+            if (low < high)
+            {
+                int pi = PartitionPorTitulo(arr, low, high);
+                QuickSortPorTitulo(arr, low, pi - 1);
+                QuickSortPorTitulo(arr, pi + 1, high);
+            }
+        }
+
+        private int PartitionPorTitulo(Libro[] arr, int low, int high)
+        {
+            string pivot = arr[high].Titulo;
+            int i = (low - 1);
+
+            for (int j = low; j <= high - 1; j++)
+            {
+                if (string.Compare(arr[j].Titulo, pivot, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    i++;
+                    Libro temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+            Libro temp2 = arr[i + 1];
+            arr[i + 1] = arr[high];
+            arr[high] = temp2;
+            return (i + 1);
         }
     }
 }
